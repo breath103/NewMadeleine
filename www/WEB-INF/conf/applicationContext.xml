@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+ 	xsi:schemaLocation="http://www.springframework.org/schema/beans
+ 						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-2.5.xsd
+						http://www.springframework.org/schema/jee
+						http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"
+						default-autowire="byName">
+    
+	<bean id="dataSource"  class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
+    	<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+    	<property name="url" value="jdbc:oracle:thin:@oracle.breath103.cafe24.com:1521:orcl" />
+    	<property name="username" value="breath103" />
+    	<property name="password" value="1994Kurt" />
+  	</bean> 
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"> 
+		<property name="dataSource" ref="dataSource" />
+  		<property name="annotatedClasses">
+            <list>    
+                <value>com.Madeleine.Entity.Madeleine</value>
+                <value>com.Madeleine.Entity.MadeleinePhoto</value>
+                <value>com.Madeleine.Entity.User</value>  
+                <value>com.Facebook.FacebookInfo</value>
+            </list>
+        </property>
+      	<property name="hibernateProperties"> 
+        	<props> 
+            	<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop> 
+            	<prop key="hibernate.show_sql">true</prop>
+            	<prop key="hibernate.hbm2ddl.auto">update</prop>
+            	<!--  
+            	<prop key="hibernate.c3p0.minPoolSize">5</prop> 
+            	<prop key="hibernate.c3p0.maxPoolSize">20</prop> 
+            	<prop key="hibernate.c3p0.timeout">1800</prop> 
+            	<prop key="hibernate.c3p0.max_statement">50</prop>
+            	--> 
+         	</props>
+      	</property>
+      	<property name="eventListeners">
+			<map>
+				<entry key="merge">
+					<bean class="org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	
+	<!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager"
+		p:sessionFactory-ref="sessionFactory" />
+	
+	
+	<!-- ========================= BUSINESS OBJECT DEFINITIONS ========================= -->
+
+	<!--
+		Activates various annotations to be detected in bean classes:
+		Spring's @Required and @Autowired, as well as JSR 250's @Resource.
+	-->
+	<context:annotation-config />
+
+	<!--
+		Instruct Spring to perform declarative transaction management
+		automatically on annotated classes.
+	-->
+	<tx:annotation-driven />
+	
+	<context:component-scan base-package="com.Madeleine.DAO" />
+	<context:component-scan base-package="com.Madeleine.Biz" />
+	<context:component-scan base-package="com.Facebook" 	 />
+	
+</beans>
